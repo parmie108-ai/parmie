@@ -1,0 +1,988 @@
+import React, { useState, useRef, useEffect } from 'react';
+
+// === 自訂 SVG 圖標 ===
+const HeartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+  </svg>
+);
+
+const AcademicIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A5.906 5.906 0 0 1 1.151 6.07a11.967 11.967 0 0 1 10.339-4.257 11.967 11.967 0 0 1 10.339 4.257 5.906 5.906 0 0 1-1.04 3.264 50.64 50.64 0 0 0-2.658.813m-15.482 0A50.707 50.707 0 0 1 12 12.025a50.707 50.707 0 0 1 6.251-1.878m0 0a50.706 50.706 0 0 1 2.274-.627m0 0l.859-.222" />
+  </svg>
+);
+
+const SparklesIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l-.813-5.096L3 15l5.187-.813L9 9l.813 5.187L15 15l-5.187.813zM19.071 4.929l-.424 2.652-2.652.424 2.652.424.424 2.652 2.652-.424.424-2.652 2.652-.424-2.652-.424-.424-2.652z" />
+  </svg>
+);
+
+const MicrophoneIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3z" />
+  </svg>
+);
+
+const SettingsIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.43l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+  </svg>
+);
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('healing');
+  
+  // === 自訂標題 State ===
+  const [isEditingHeader, setIsEditingHeader] = useState(false);
+  const [customTag, setCustomTag] = useState('我的藝術探險紀錄');
+  const [customTitle, setCustomTitle] = useState('我的藝術探險與導覽奇幻基地');
+  const [customSubtitle, setCustomSubtitle] = useState('在這裡，你可以療癒心靈、修練美術技巧，還能模擬練習導覽課，成為最閃亮的小小導覽大師！');
+  const [showTag, setShowTag] = useState(true);
+
+  // === 心靈療癒室 State ===
+  const [currentMood, setCurrentMood] = useState('happy');
+  const [brushColor, setBrushColor] = useState('#FBBF24');
+  const [brushSize, setBrushSize] = useState(8);
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [musicPlaying, setMusicPlaying] = useState(false);
+  const [breathPhase, setBreathPhase] = useState('吸氣');
+  const [breathScale, setBreathScale] = useState(1);
+
+  // === 藝術技能 State ===
+  const [lightX, setLightX] = useState(180);
+  const [lightY, setLightY] = useState(60);
+  const shadowCanvasRef = useRef(null);
+  const [vanishingX, setVanishingX] = useState(150);
+  const [vanishingY, setVanishingY] = useState(100);
+  const perspectiveCanvasRef = useRef(null);
+  const [materialBase, setMaterialBase] = useState('watercolor');
+  const [materialLayer, setMaterialLayer] = useState('marker');
+
+  // === 導覽大師 State ===
+  const [scriptOpening, setScriptOpening] = useState('');
+  const [scriptChange, setScriptChange] = useState('');
+  const [scriptClassic, setScriptClassic] = useState('');
+  const [scriptAnecdote, setScriptAnecdote] = useState('');
+  const [timerActive, setTimerActive] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [guideStep, setGuideStep] = useState(0);
+  const timerRef = useRef(null);
+
+  // === 挑戰與勳章 State ===
+  const [challenges, setChallenges] = useState([
+    { id: 1, text: '在心情畫布上記錄一次心情', completed: false },
+    { id: 2, text: '調整球體光源，看懂亮面與投影', completed: false },
+    { id: 3, text: '拖曳透視線，找出消失點的位置', completed: false },
+    { id: 4, text: '完成「創新之變 經典之位」導覽草稿', completed: false },
+    { id: 5, text: '開啟麥克風計時器練習導覽滿 60 秒', completed: false },
+  ]);
+
+  const completeChallenge = (id) => {
+    setChallenges(prev => prev.map(c => c.id === id ? { ...c, completed: true } : c));
+  };
+
+  // --- 音樂與呼吸節奏模擬器 ---
+  useEffect(() => {
+    let interval;
+    if (musicPlaying) {
+      let count = 0;
+      interval = setInterval(() => {
+        count = (count + 1) % 12;
+        if (count < 4) {
+          setBreathPhase('吸氣... 吸入平靜與靈感');
+          setBreathScale(1.3);
+        } else if (count < 8) {
+          setBreathPhase('憋氣... 沉澱思緒');
+          setBreathScale(1.3);
+        } else {
+          setBreathPhase('吐氣... 吐出所有壓力和煩惱');
+          setBreathScale(1.0);
+        }
+      }, 1000);
+    } else {
+      setBreathPhase('準備好後，按播放開始深呼吸');
+      setBreathScale(1.0);
+    }
+    return () => clearInterval(interval);
+  }, [musicPlaying]);
+
+  // --- 心情畫布邏輯 ---
+  useEffect(() => {
+    if (activeTab === 'healing') {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+    }
+  }, [activeTab]);
+
+  const startDrawing = (e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    
+    // 支援觸控與滑鼠
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    ctx.beginPath();
+    ctx.moveTo(clientX - rect.left, clientY - rect.top);
+    setIsDrawing(true);
+    completeChallenge(1);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    ctx.lineTo(clientX - rect.left, clientY - rect.top);
+    ctx.strokeStyle = brushColor;
+    ctx.lineWidth = brushSize;
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const selectMood = (mood, color) => {
+    setCurrentMood(mood);
+    setBrushColor(color);
+  };
+
+  // --- 3D球體光影模擬器 ---
+  useEffect(() => {
+    if (activeTab === 'skills') {
+      drawSphereShadow();
+    }
+  }, [lightX, lightY, activeTab]);
+
+  const drawSphereShadow = () => {
+    const canvas = shadowCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const sphereX = 150;
+    const sphereY = 130;
+    const radius = 60;
+
+    // 1. 繪製桌面底座
+    ctx.fillStyle = '#E5E7EB';
+    ctx.fillRect(0, 160, 300, 140);
+
+    // 2. 繪製投影 (Shadow) - 方向和長度根據光源決定
+    const dx = sphereX - lightX;
+    const dy = (sphereY + 30) - lightY;
+    const shadowLength = Math.sqrt(dx * dx + dy * dy) * 0.8;
+    const shadowAngle = Math.atan2(dy, dx);
+
+    ctx.save();
+    ctx.translate(sphereX, sphereY + radius - 5);
+    ctx.scale(1.8, 0.4);
+    
+    const shadowGrad = ctx.createRadialGradient(
+      dx * 0.4, 0, 5,
+      dx * 0.5, 0, shadowLength
+    );
+    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
+    shadowGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.2)');
+    shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    
+    ctx.fillStyle = shadowGrad;
+    ctx.beginPath();
+    ctx.arc(dx * 0.3, 0, shadowLength, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 3. 繪製球體本身 (Sphere with Gradient)
+    const highlightX = sphereX + (lightX - sphereX) * 0.35;
+    const highlightY = sphereY + (lightY - sphereY) * 0.35;
+
+    const radialGrad = ctx.createRadialGradient(
+      highlightX, highlightY, 2,        // 光源亮點
+      sphereX, sphereY, radius           // 球體邊界
+    );
+    radialGrad.addColorStop(0, '#FFFFFF');         // 亮部 (Highlight)
+    radialGrad.addColorStop(0.2, '#F3F4F6');       // 中間調 (Midtone)
+    radialGrad.addColorStop(0.7, '#6B7280');       // 暗部 (Core Shadow)
+    radialGrad.addColorStop(0.9, '#374151');       // 反光帶 (Reflected Light)
+    radialGrad.addColorStop(1, '#111827');         // 明暗交界線
+
+    ctx.beginPath();
+    ctx.arc(sphereX, sphereY, radius, 0, Math.PI * 2);
+    ctx.fillStyle = radialGrad;
+    ctx.fill();
+
+    // 繪製標註字體
+    ctx.fillStyle = '#4B5563';
+    ctx.font = '12px system-ui';
+    ctx.fillText('亮部 (Highlight)', highlightX - 40, highlightY - 15);
+    ctx.fillText('暗部 (Shadow)', sphereX + 10, sphereY + 40);
+  };
+
+  // --- 一點透視模擬器 ---
+  useEffect(() => {
+    if (activeTab === 'skills') {
+      drawPerspective();
+    }
+  }, [vanishingX, vanishingY, activeTab]);
+
+  const drawPerspective = () => {
+    const canvas = perspectiveCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 地平線 (Horizon)
+    ctx.strokeStyle = '#9CA3AF';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(0, vanishingY);
+    ctx.lineTo(canvas.width, vanishingY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 消失點 (Vanishing Point)
+    ctx.fillStyle = '#EF4444';
+    ctx.beginPath();
+    ctx.arc(vanishingX, vanishingY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#EF4444';
+    ctx.font = 'bold 11px system-ui';
+    ctx.fillText('消失點', vanishingX - 18, vanishingY - 10);
+
+    // 繪製左右兩側的大樓透視線
+    const drawBox = (x, y, w, h) => {
+      ctx.strokeStyle = '#4B5563';
+      ctx.lineWidth = 2;
+      // 前表面
+      ctx.strokeRect(x, y, w, h);
+      
+      // 連接消失點的透視輔助線
+      ctx.strokeStyle = '#3B82F6';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      
+      const corners = [
+        { cx: x, cy: y },
+        { cx: x + w, cy: y },
+        { cx: x, cy: y + h },
+        { cx: x + w, cy: y + h }
+      ];
+
+      corners.forEach(c => {
+        ctx.beginPath();
+        ctx.moveTo(c.cx, c.cy);
+        ctx.lineTo(vanishingX, vanishingY);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
+    };
+
+    drawBox(30, 110, 40, 60);
+    drawBox(230, 110, 40, 60);
+
+    ctx.fillStyle = '#10B981';
+    ctx.font = '11px system-ui';
+    ctx.fillText('拉動紅色消失點，感受立體空間感！', 10, 20);
+  };
+
+  const handlePerspectiveMove = (e) => {
+    const canvas = perspectiveCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    setVanishingX(Math.max(10, Math.min(canvas.width - 10, clientX - rect.left)));
+    setVanishingY(Math.max(30, Math.min(canvas.height - 30, clientY - rect.top)));
+    completeChallenge(3);
+  };
+
+  // --- 導覽訓練計時器 ---
+  useEffect(() => {
+    if (timerActive) {
+      timerRef.current = setInterval(() => {
+        setTimerSeconds(prev => {
+          const next = prev + 1;
+          if (next >= 60) {
+            completeChallenge(5);
+          }
+          return next;
+        });
+      }, 1000);
+    } else {
+      clearInterval(timerRef.current);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [timerActive]);
+
+  const handleScriptChange = (field, value) => {
+    if (field === 'opening') setScriptOpening(value);
+    if (field === 'change') setScriptChange(value);
+    if (field === 'classic') setScriptClassic(value);
+    if (field === 'anecdote') setScriptAnecdote(value);
+
+    if (scriptOpening || scriptChange || scriptClassic || scriptAnecdote) {
+      completeChallenge(4);
+    }
+  };
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  // 取得過關百分比
+  const progressPercent = Math.round((challenges.filter(c => c.completed).length / challenges.length) * 100);
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col pb-12">
+      
+      {/* 標題與引言區 */}
+      <header className="bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 text-white shadow-lg py-8 px-4 text-center relative">
+        
+        {/* 自訂標題按鈕 */}
+        <button 
+          onClick={() => setIsEditingHeader(!isEditingHeader)}
+          className="absolute top-4 right-4 bg-white/20 hover:bg-white/35 backdrop-blur-md text-white rounded-full p-2.5 transition-all text-xs flex items-center gap-1.5 font-semibold"
+          title="自訂標題與文字"
+        >
+          <SettingsIcon />
+          <span>{isEditingHeader ? '關閉設定' : '修改標題文字'}</span>
+        </button>
+
+        {/* 編輯面板 */}
+        {isEditingHeader && (
+          <div className="max-w-md mx-auto mt-2 mb-6 bg-slate-900/90 text-slate-100 p-5 rounded-2xl border border-purple-400/40 text-left shadow-2xl animate-fadeIn">
+            <h3 className="font-bold text-sm text-amber-300 mb-3 flex items-center gap-2">⚙️ 自由設定網站標題</h3>
+            
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="flex items-center justify-between mb-1">
+                  <span>上方圓角標籤 (選填)</span>
+                  <input 
+                    type="checkbox" 
+                    checked={showTag} 
+                    onChange={(e) => setShowTag(e.target.checked)}
+                    className="accent-purple-500"
+                  />
+                </label>
+                {showTag && (
+                  <input 
+                    type="text" 
+                    value={customTag} 
+                    onChange={(e) => setCustomTag(e.target.value)}
+                    placeholder="例如：六年級 3 班"
+                    className="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-white focus:outline-none focus:border-purple-400"
+                  />
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1">主標題</label>
+                <input 
+                  type="text" 
+                  value={customTitle} 
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-white focus:outline-none focus:border-purple-400"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1">副標題介紹</label>
+                <textarea 
+                  rows="2"
+                  value={customSubtitle} 
+                  onChange={(e) => setCustomSubtitle(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-white focus:outline-none focus:border-purple-400"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 渲染自訂標籤 */}
+        {showTag && (
+          <span className="bg-amber-400 text-amber-950 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider inline-block shadow-sm">
+            {customTag}
+          </span>
+        )}
+
+        {/* 渲染主副標題 */}
+        <h1 className="text-3xl md:text-4xl font-extrabold mt-3 tracking-tight">
+          {customTitle}
+        </h1>
+        <p className="text-sm md:text-base text-purple-100 mt-2 max-w-2xl mx-auto">
+          {customSubtitle}
+        </p>
+
+        {/* 勳章進度條 */}
+        <div className="max-w-md mx-auto mt-6 bg-purple-900/40 p-4 rounded-xl border border-purple-300/20 backdrop-blur-sm">
+          <div className="flex justify-between items-center text-xs text-purple-200 mb-1">
+            <span>🏆 我的探險挑戰度</span>
+            <span className="font-bold">{progressPercent}% ({challenges.filter(c => c.completed).length}/5)</span>
+          </div>
+          <div className="w-full bg-purple-950 rounded-full h-3 overflow-hidden">
+            <div 
+              className="bg-gradient-to-r from-amber-400 to-yellow-300 h-full transition-all duration-500 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
+          </div>
+        </div>
+      </header>
+
+      {/* 導覽分頁按鈕 */}
+      <nav className="flex justify-center bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm overflow-x-auto">
+        <button 
+          onClick={() => setActiveTab('healing')}
+          className={`px-5 py-4 font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-colors ${activeTab === 'healing' ? 'border-b-4 border-violet-600 text-violet-600' : 'text-slate-500 hover:text-slate-800'}`}
+        >
+          <HeartIcon />
+          1. 心靈療癒室
+        </button>
+        <button 
+          onClick={() => setActiveTab('skills')}
+          className={`px-5 py-4 font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-colors ${activeTab === 'skills' ? 'border-b-4 border-purple-600 text-purple-600' : 'text-slate-500 hover:text-slate-800'}`}
+        >
+          <AcademicIcon />
+          2. 藝術技能場
+        </button>
+        <button 
+          onClick={() => setActiveTab('tour')}
+          className={`px-5 py-4 font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-colors ${activeTab === 'tour' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}
+        >
+          <SparklesIcon />
+          3. 導覽大師班
+        </button>
+        <button 
+          onClick={() => setActiveTab('challenges')}
+          className={`px-5 py-4 font-bold text-sm flex items-center gap-2 whitespace-nowrap transition-colors ${activeTab === 'challenges' ? 'border-b-4 border-amber-500 text-amber-500' : 'text-slate-500 hover:text-slate-800'}`}
+        >
+          🏆 任務清單 ({challenges.filter(c => c.completed).length})
+        </button>
+      </nav>
+
+      {/* 主要內容區 */}
+      <main className="max-w-5xl mx-auto px-4 mt-8 w-full flex-grow">
+        
+        {/* --- 分頁一：心靈療癒室 --- */}
+        {activeTab === 'healing' && (
+          <div className="grid md:grid-cols-2 gap-8 animate-fadeIn">
+            {/* 互動心情畫布 */}
+            <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100">
+              <h2 className="text-xl font-bold text-violet-700 flex items-center gap-2 mb-2">
+                🎨 我的「心情顏色日記」
+              </h2>
+              <p className="text-xs text-slate-500 mb-4">
+                選取一個你今天的心情，在畫布上自由塗鴉、畫線條或寫字。放開手去感受色彩的流動，把煩惱釋放在紙上吧！
+              </p>
+
+              {/* 心情快速鍵 */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <button 
+                  onClick={() => selectMood('happy', '#FBBF24')}
+                  className={`p-2 rounded-xl text-xs font-semibold flex flex-col items-center border transition-all ${currentMood === 'happy' ? 'bg-amber-100 border-amber-400 text-amber-800 scale-105' : 'bg-slate-50 border-slate-200'}`}
+                >
+                  <span className="text-xl">😆</span>
+                  開心明亮
+                </button>
+                <button 
+                  onClick={() => selectMood('calm', '#34D399')}
+                  className={`p-2 rounded-xl text-xs font-semibold flex flex-col items-center border transition-all ${currentMood === 'calm' ? 'bg-emerald-100 border-emerald-400 text-emerald-800 scale-105' : 'bg-slate-50 border-slate-200'}`}
+                >
+                  <span className="text-xl">🌿</span>
+                  寧靜放鬆
+                </button>
+                <button 
+                  onClick={() => selectMood('tired', '#60A5FA')}
+                  className={`p-2 rounded-xl text-xs font-semibold flex flex-col items-center border transition-all ${currentMood === 'tired' ? 'bg-blue-100 border-blue-400 text-blue-800 scale-105' : 'bg-slate-50 border-slate-200'}`}
+                >
+                  <span className="text-xl">🌊</span>
+                  累了想歇
+                </button>
+                <button 
+                  onClick={() => selectMood('mad', '#F87171')}
+                  className={`p-2 rounded-xl text-xs font-semibold flex flex-col items-center border transition-all ${currentMood === 'mad' ? 'bg-red-100 border-red-400 text-red-800 scale-105' : 'bg-slate-50 border-slate-200'}`}
+                >
+                  <span className="text-xl">🔥</span>
+                  有點浮躁
+                </button>
+              </div>
+
+              {/* 繪圖控制 */}
+              <div className="flex gap-4 items-center mb-3">
+                <div className="flex-1 flex items-center gap-2">
+                  <span className="text-xs text-slate-500">筆刷顏色</span>
+                  <input 
+                    type="color" 
+                    value={brushColor} 
+                    onChange={(e) => setBrushColor(e.target.value)}
+                    className="w-8 h-8 rounded border-none cursor-pointer"
+                  />
+                </div>
+                <div className="flex-1 flex items-center gap-2">
+                  <span className="text-xs text-slate-500">粗細</span>
+                  <input 
+                    type="range" 
+                    min="2" 
+                    max="20" 
+                    value={brushSize} 
+                    onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                    className="w-full accent-violet-600"
+                  />
+                </div>
+              </div>
+
+              {/* 畫布 */}
+              <div className="border-2 border-dashed border-slate-200 rounded-xl overflow-hidden bg-slate-50 relative">
+                <canvas 
+                  ref={canvasRef}
+                  width={340}
+                  height={240}
+                  className="w-full h-[240px] cursor-crosshair touch-none"
+                  onMouseDown={startDrawing}
+                  onMouseMove={draw}
+                  onMouseUp={stopDrawing}
+                  onMouseLeave={stopDrawing}
+                  onTouchStart={startDrawing}
+                  onTouchMove={draw}
+                  onTouchEnd={stopDrawing}
+                />
+                <button 
+                  onClick={clearCanvas}
+                  className="absolute bottom-2 right-2 bg-white/90 hover:bg-white text-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm font-semibold"
+                >
+                  清除畫布
+                </button>
+              </div>
+            </div>
+
+            {/* 音樂律動與冥想 */}
+            <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex flex-col justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-emerald-700 flex items-center gap-2 mb-2">
+                  🧘‍♀️ 藝術冥想與深呼吸
+                </h2>
+                <p className="text-xs text-slate-500 mb-6">
+                  當你面對沉重的功課，或感到壓力大時，試著合上眼睛，搭配這個「視覺呼吸球」進行呼吸調節。
+                </p>
+
+                {/* 呼吸球動態效果 */}
+                <div className="flex flex-col items-center justify-center py-8">
+                  <div 
+                    className="w-24 h-24 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-center text-sm shadow-lg shadow-emerald-200/50 transition-transform duration-1000 ease-in-out"
+                    style={{ transform: `scale(${breathScale})` }}
+                  >
+                    <span>{musicPlaying ? (breathScale > 1.1 ? '吸氣...' : '吐氣...') : '等待中'}</span>
+                  </div>
+                  <p className="mt-8 font-semibold text-emerald-800 text-center text-sm">{breathPhase}</p>
+                </div>
+              </div>
+
+              <div>
+                <button 
+                  onClick={() => setMusicPlaying(!musicPlaying)}
+                  className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-md flex items-center justify-center gap-2 ${musicPlaying ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-200' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200'}`}
+                >
+                  {musicPlaying ? '⏹ 停止練習' : '🎵 開始深呼吸放鬆'}
+                </button>
+                <p className="text-[11px] text-slate-400 mt-2 text-center">
+                  小技巧：你可以一邊看著呼吸球，一邊在左邊的心情日記裡閉眼畫出「線條盲畫」！
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- 分頁二：藝術技能場 --- */}
+        {activeTab === 'skills' && (
+          <div className="grid md:grid-cols-2 gap-8 animate-fadeIn">
+            {/* 球體光影素描原理 */}
+            <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100">
+              <h2 className="text-xl font-bold text-purple-700 flex items-center gap-2 mb-2">
+                🌗 3D立體球光影模擬器
+              </h2>
+              <p className="text-xs text-slate-500 mb-4">
+                拖拉下方的拉桿改變太陽的位置，觀察球體上的「亮面」、「暗部」與桌面上的「投影」是怎麼隨之改變的！
+              </p>
+
+              <div className="border border-slate-100 rounded-xl overflow-hidden bg-slate-50 flex justify-center py-4 relative">
+                <canvas 
+                  ref={shadowCanvasRef}
+                  width={300}
+                  height={240}
+                  className="bg-white rounded-lg shadow-sm"
+                />
+                {/* 太陽視覺小裝飾 */}
+                <div 
+                  className="absolute w-6 h-6 bg-yellow-400 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.8)] border border-amber-300 flex items-center justify-center text-xs"
+                  style={{ left: `${lightX / 1.1}px`, top: `${lightY / 1.3}px` }}
+                >
+                  ☀️
+                </div>
+              </div>
+
+              {/* 控制光源 */}
+              <div className="mt-4 space-y-3">
+                <div>
+                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <span>💡 左右光源位置 (X軸)</span>
+                    <span className="font-semibold text-purple-700">{lightX} px</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="30" 
+                    max="270" 
+                    value={lightX} 
+                    onChange={(e) => {
+                      setLightX(parseInt(e.target.value));
+                      completeChallenge(2);
+                    }}
+                    className="w-full accent-purple-600"
+                  />
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <span>💡 上下光源位置 (Y軸)</span>
+                    <span className="font-semibold text-purple-700">{lightY} px</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="20" 
+                    max="140" 
+                    value={lightY} 
+                    onChange={(e) => {
+                      setLightY(parseInt(e.target.value));
+                      completeChallenge(2);
+                    }}
+                    className="w-full accent-purple-600"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 透視原理 */}
+            <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex flex-col justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-blue-700 flex items-center gap-2 mb-2">
+                  📐 一點透視空間模擬器
+                </h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  在透視圖中，所有平行的長線最後都會消失在一個點——**消失點**。這就是讓畫作呈現立體感與走廊深度的最大秘密！
+                </p>
+
+                <div className="border border-slate-100 rounded-xl overflow-hidden bg-slate-900 relative">
+                  <canvas 
+                    ref={perspectiveCanvasRef}
+                    width={320}
+                    height={200}
+                    className="w-full h-[200px] cursor-pointer touch-none"
+                    onMouseMove={handlePerspectiveMove}
+                    onTouchMove={handlePerspectiveMove}
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-2">
+                  * 試著把手指或滑鼠放在模擬器上滑動，看看消失點移動時，兩旁的大樓箱子如何產生驚人的空間變化！
+                </p>
+              </div>
+
+              {/* 複合媒材挑戰 */}
+              <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">六年級進階挑戰</span>
+                <h3 className="font-bold text-sm text-blue-900 mt-2">複合媒材層次搭配組合</h3>
+                <p className="text-xs text-blue-700 mt-1">
+                  想要作品更有立體感，可以試試這樣搭配疊加：
+                </p>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div>
+                    <label className="block text-[11px] text-slate-500">第一步：大面積底色</label>
+                    <select 
+                      value={materialBase} 
+                      onChange={(e) => setMaterialBase(e.target.value)}
+                      className="text-xs w-full p-1.5 rounded border border-blue-200 bg-white"
+                    >
+                      <option value="watercolor">輕透水彩 (製造暈染)</option>
+                      <option value="crayon">輕柔蠟筆 (粗獷紋理)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-500">第二步：細節與線條</label>
+                    <select 
+                      value={materialLayer} 
+                      onChange={(e) => setMaterialLayer(e.target.value)}
+                      className="text-xs w-full p-1.5 rounded border border-blue-200 bg-white"
+                    >
+                      <option value="marker">酒精麥克風 (畫出輪廓)</option>
+                      <option value="colorpencil">彩色鉛筆 (刻畫微小光影)</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-slate-600 italic bg-white/70 p-2 rounded border border-blue-50">
+                  💡 建議心法：用 <strong className="text-blue-800">{materialBase === 'watercolor' ? '水彩' : '蠟筆'}</strong> 當作底色鋪陳，等乾了之後，再用 <strong className="text-blue-800">{materialLayer === 'marker' ? '麥克風' : '色鉛筆'}</strong> 描繪主體，層次感爆棚！
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- 分頁三：導覽大師班 --- */}
+        {activeTab === 'tour' && (
+          <div className="space-y-8 animate-fadeIn">
+            {/* 主題核心解釋 */}
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 flex flex-col md:flex-row gap-4 items-center">
+              <div className="bg-indigo-600 text-white rounded-2xl p-4 text-center md:w-1/3">
+                <span className="text-sm block">導覽核心主題</span>
+                <span className="text-xl md:text-2xl font-extrabold mt-1 block">創新之變<br/>經典之位</span>
+              </div>
+              <div className="text-slate-700 text-sm md:w-2/3 leading-relaxed">
+                這八個字看起來很難，但用我們小學生聽得懂的話來說：
+                <ul className="list-disc list-inside mt-2 space-y-1 text-slate-600 text-xs">
+                  <li><strong className="text-indigo-700">創新之變：</strong>原本大家都習慣一種做法，但某個藝術家決定**「打破傳統，嘗試前所未有的新方法」**！</li>
+                  <li><strong className="text-indigo-700">經典之位：</strong>這種新方法不只酷，還深遠地影響了後世，成為大家**「公認、尊重，無法被取代的里程碑」**！</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* 互動講稿產生器 */}
+              <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100 space-y-4">
+                <h2 className="text-xl font-bold text-indigo-700 flex items-center gap-2">
+                  📝 我的導覽講稿設計卡
+                </h2>
+                <p className="text-xs text-slate-500">
+                  填入你為導覽準備的段落，右邊就會幫你組合成一張精美的「大師級導覽講稿卡」！
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">
+                      1. 開場問題 (破冰互動)
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="例：大家看這幅畫，猜猜看400年前的人會罵他還是誇他？"
+                      value={scriptOpening}
+                      onChange={(e) => handleScriptChange('opening', e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">
+                      2. 「創新之變」在哪裡？(大膽改變)
+                    </label>
+                    <textarea 
+                      rows="2"
+                      placeholder="例：過去畫家都追求畫得像，但他卻用超大膽的線條與顏色，把情緒畫出來..."
+                      value={scriptChange}
+                      onChange={(e) => handleScriptChange('change', e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">
+                      3. 「經典之位」原因？(深遠影響)
+                    </label>
+                    <textarea 
+                      rows="2"
+                      placeholder="例：這個大變革，在當時雖然被罵，卻開啟了現代藝術大門，成為所有人膜拜的經典作品！"
+                      value={scriptClassic}
+                      onChange={(e) => handleScriptChange('classic', e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">
+                      4. 藝術家趣味小八卦 (生動故事)
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="例：聽說畫家為了這幅畫連續三天沒睡覺，還差點把顏料當糖水喝了呢！"
+                      value={scriptAnecdote}
+                      onChange={(e) => handleScriptChange('anecdote', e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 講稿卡預覽與計時練習 */}
+              <div className="space-y-6">
+                {/* 講稿預覽 */}
+                <div className="bg-gradient-to-br from-indigo-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                  <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-10 text-9xl">🎤</div>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] bg-indigo-500/30 text-indigo-200 border border-indigo-500/40 px-2 py-0.5 rounded-full">游於藝導覽讀卡</span>
+                    <span className="text-xs font-semibold text-amber-300">主題: 創新之變 經典之位</span>
+                  </div>
+
+                  <div className="space-y-4 text-xs leading-relaxed text-indigo-100">
+                    <div>
+                      <span className="text-amber-400 font-bold block mb-1">【開場互動】</span>
+                      <p className="italic bg-indigo-950/40 p-2 rounded border border-indigo-800/30">
+                        {scriptOpening || "「各位老師同學好，大家看這幅畫，猜猜看400年前的人... (請在左方輸入你的開場)」"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span className="text-amber-400 font-bold block mb-1">【揭示創新之變】</span>
+                      <p className="bg-indigo-950/40 p-2 rounded border border-indigo-800/30">
+                        {scriptChange || "「這幅畫的創新之變在於，他打破了傳統，把原本平淡的畫面改為... (請在左方輸入你的創新描述)」"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span className="text-amber-400 font-bold block mb-1">【建立經典之位】</span>
+                      <p className="bg-indigo-950/40 p-2 rounded border border-indigo-800/30">
+                        {scriptClassic || "「為什麼說它是經典呢？因為這個創舉深深影響了後代，奠定了它... (請在左方輸入你的經典描述)」"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span className="text-amber-400 font-bold block mb-1">【趣聞花絮】</span>
+                      <p className="bg-indigo-950/40 p-2 rounded border border-indigo-800/30">
+                        {scriptAnecdote || "「其實，這位藝術家在創作這件作品時，還有個有趣的小秘密... (請在左方輸入趣味故事)」"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 導覽麥克風計時練習 */}
+                <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-100">
+                  <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2 mb-2">
+                    ⏱ 虛擬麥克風與黃金五分鐘計時器
+                  </h3>
+                  <p className="text-xs text-slate-500 mb-4">
+                    小學生的導覽時間不宜過長。理想時間是 **3 到 5 分鐘**。點擊「開啟麥克風」拿著你的稿子大聲唸唸看，挑戰看看能不能堅持 60 秒以上！
+                  </p>
+
+                  <div className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-150">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${timerActive ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-200 text-slate-500'}`}>
+                        <MicrophoneIcon />
+                      </div>
+                      <div>
+                        <span className="text-xs text-slate-400 block">導覽碼錶</span>
+                        <span className="font-mono text-xl font-bold text-slate-800">{formatTime(timerSeconds)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => {
+                          setTimerActive(!timerActive);
+                        }}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold text-white shadow transition-all ${timerActive ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                      >
+                        {timerActive ? '⏸ 暫停' : '🎙 開啟麥克風'}
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setTimerActive(false);
+                          setTimerSeconds(0);
+                        }}
+                        className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold"
+                      >
+                        重置
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 導覽時間分配建議 */}
+                  <div className="grid grid-cols-3 gap-2 text-center text-[10px] mt-3">
+                    <div className="bg-amber-50 p-1.5 rounded border border-amber-100">
+                      <span className="font-bold text-amber-800 block">0~1 分鐘</span>
+                      <span className="text-slate-500">破冰與提問</span>
+                    </div>
+                    <div className="bg-purple-50 p-1.5 rounded border border-purple-100">
+                      <span className="font-bold text-purple-800 block">1~3 分鐘</span>
+                      <span className="text-slate-500">解說創新與經典</span>
+                    </div>
+                    <div className="bg-blue-50 p-1.5 rounded border border-blue-100">
+                      <span className="font-bold text-blue-800 block">3~5 分鐘</span>
+                      <span className="text-slate-500">小八卦與結尾</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- 分頁四：挑戰清單 --- */}
+        {activeTab === 'challenges' && (
+          <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-100 animate-fadeIn max-w-2xl mx-auto">
+            <div className="text-center mb-6">
+              <span className="text-4xl">🏆</span>
+              <h2 className="text-2xl font-extrabold text-slate-800 mt-2">我的藝術小英雄挑戰</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                完成網站裡的各項互動練習，累積滿滿的導覽與藝術實力吧！
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {challenges.map(c => (
+                <div 
+                  key={c.id} 
+                  className={`flex items-center justify-between p-4 rounded-xl border transition-all ${c.completed ? 'bg-amber-50 border-amber-200 text-slate-800' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">{c.completed ? '✅' : '⏳'}</span>
+                    <span className={`text-sm ${c.completed ? 'line-through text-slate-500 font-medium' : 'font-semibold'}`}>
+                      {c.text}
+                    </span>
+                  </div>
+                  {c.completed ? (
+                    <span className="text-[10px] bg-amber-400 text-amber-950 font-extrabold px-2 py-0.5 rounded-full">挑戰完成</span>
+                  ) : (
+                    <span className="text-[10px] bg-slate-200 text-slate-500 font-semibold px-2 py-0.5 rounded-full">未完成</span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* 完成結語 */}
+            {progressPercent === 100 && (
+              <div className="mt-8 p-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-amber-950 rounded-xl text-center font-bold text-sm shadow-md animate-bounce">
+                🎉 太厲害了！你已經解鎖所有挑戰！你正式成為「經典藝術小導覽家」囉！
+              </div>
+            )}
+          </div>
+        )}
+
+      </main>
+
+      {/* 頁尾小幫手提示 */}
+      <footer className="mt-12 text-center text-xs text-slate-400 px-4">
+        <p>© 2026 藝術探險與導覽互動基地 • 設計給最熱愛創意的你</p>
+        <p className="mt-1">無論是畫筆還是麥克風，勇敢跨出「創新之變」，你就是未來的經典！</p>
+      </footer>
+    </div>
+  );
+}
